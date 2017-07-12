@@ -1,6 +1,8 @@
-# Airbnb JavaScript Style Guide() {
+# Spokeo JavaScript Style Guide() {
 
 *A mostly reasonable approach to JavaScript*
+
+Branched off Airbnb's Javascript Style Guide - [https://github.com/airbnb/javascript/](https://github.com/airbnb/javascript/)
 
 [![Downloads](https://img.shields.io/npm/dm/eslint-config-airbnb.svg)](https://www.npmjs.com/package/eslint-config-airbnb)
 [![Downloads](https://img.shields.io/npm/dm/eslint-config-airbnb-base.svg)](https://www.npmjs.com/package/eslint-config-airbnb-base)
@@ -8,11 +10,10 @@
 
 Other Style Guides
 
-  - [ES5 (Deprecated)](https://github.com/airbnb/javascript/tree/es5-deprecated/es5)
   - [React](react/)
-  - [CSS-in-JavaScript](css-in-javascript/)
-  - [CSS & Sass](https://github.com/airbnb/css)
-  - [Ruby](https://github.com/airbnb/ruby)
+  - [CSS-in-JavaScript] TODO: update (css-in-javascript/)
+  - [CSS & Sass] TODO: update (https://github.com/airbnb/css)
+  - [Ruby] TODO: update (https://github.com/airbnb/ruby)
 
 ## Table of Contents
 

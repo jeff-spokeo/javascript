@@ -49,7 +49,7 @@
     }
     ```
 
-    And if you don't have state or refs, prefer normal functions over classes:
+    And if you don't have state or refs, prefer normal functions (not arrow functions) over classes:
 
     ```jsx
     // bad
@@ -59,7 +59,7 @@
       }
     }
 
-    // good (although AirBnb says relying on function name inference is discouraged)
+    // bad (relying on function name inference is discouraged)
     const Listing = ({ hello }) => (
       <div>{hello}</div>
     );
@@ -464,12 +464,12 @@
     }
     ```
 
-  - Avoid binding event handlers within the render method. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
+  - Bind event handlers for the render method in the constructor. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
 
     > Why? A bind call in the render path creates a brand new function on every single render.
 
     ```jsx
-    // bad (binding in the render method)
+    // bad
     class extends React.Component {
       onClickDiv() {
         // do stuff
@@ -480,30 +480,7 @@
       }
     }
 
-    // bad (lodash class decorator)
-    @BindAll() // does NOT work with preact
-    class extends React.Component {
-      onClickDiv() {
-        // do stuff
-      }
-
-      render() {
-        return <div onClick={this.onClickDiv.bind(this)} />;
-      }
-    }
-
-    // good (class arrow functions)
-    class extends React.Component {
-      onClickDiv = () => {
-        // do stuff
-      }
-
-      render() {
-        return <div onClick={this.onClickDiv} />;
-      }
-    }
-
-    // good (constructor)
+    // good
     class extends React.Component {
       constructor(props) {
         super(props);
@@ -511,19 +488,6 @@
         this.onClickDiv = this.onClickDiv.bind(this);
       }
 
-      onClickDiv() {
-        // do stuff
-      }
-
-      render() {
-        return <div onClick={this.onClickDiv} />;
-      }
-    }
-
-    // good (lodash method decorator)
-    class extends React.Component {
-
-      @Bind()
       onClickDiv() {
         // do stuff
       }
@@ -589,38 +553,8 @@
   1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
   1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
   1. `render`
-  1. `redux connect (if applicable)`
 
-  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc... via TypeScript
-
-    ```jsx
-    import React from 'react';
-
-    interface IProps = {
-      id: number,
-      url: string,
-      text?: string = 'Hello World',
-    };
-
-    interface IState = {
-      foo: string,
-      bar?: string
-    }
-
-    class Link extends React.Component<IProps, IState> {
-      static methodsAreOk() {
-        return true;
-      }
-
-      render() {
-        return <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>;
-      }
-    }
-
-    export default Link;
-    ```
-    
-  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc... via REACT
+  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc...
 
     ```jsx
     import React from 'react';
