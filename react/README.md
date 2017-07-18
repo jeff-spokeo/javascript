@@ -9,7 +9,6 @@ These guidelines are meant to define how we structure our React projects at Spok
 
   1. [Directory Structure/Naming Conventions](#directory-structure-naming-conventions)
   1. [Class vs Stateless Components](#class-vs-stateless-components)
-  1. [`React.createClass`](#reactcreateclass)
   1. [Naming](#naming)
   1. [Methods](#methods)
   1. [Binding](#binding)
@@ -53,7 +52,7 @@ These guidelines are meant to define how we structure our React projects at Spok
 ## Class vs Stateless Components
 
   - Stateful (or Class) Components
-    - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component`.
+    - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component` over [`React.createClass`](#avoid-react-createclass).
     - include only one React component per file.
     - eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md) 
     
@@ -186,9 +185,8 @@ These guidelines are meant to define how we structure our React projects at Spok
 
 ## Binding
 
-  - Avoid binding event handlers within the render method.  
+  - AVOID: binding event handlers within the render method
     - eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
-
     > Why? A bind call in the render path creates a brand new function on every single render.
 
     ```jsx
@@ -204,9 +202,9 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-  - Avoid using the lodash `BindAll()` decorator
+  - AVOID: lodash `BindAll()` class decorator
 
-    > Why? After some trial and error, we've discovered that it is not compatible with preact.
+    > Why? It is not compatible with preact.
 
     ```jsx
     // bad (lodash class decorator)
@@ -222,7 +220,7 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
   
-  - Bind using one of the following methods:
+  - DO: Bind via class arrow functions
     ```jsx
     // good (class arrow functions)
     class extends React.Component {
@@ -234,7 +232,10 @@ These guidelines are meant to define how we structure our React projects at Spok
         return <div onClick={this.onClickDiv} />;
       }
     }
+    ```
 
+  - DO: Bind in the constructor
+    ```jsx
     // good (constructor)
     class extends React.Component {
       constructor(props) {
@@ -251,7 +252,10 @@ These guidelines are meant to define how we structure our React projects at Spok
         return <div onClick={this.onClickDiv} />;
       }
     }
+    ```
 
+  - DO: Bind via lodash Bind() decorator
+    ```jsx
     // good (lodash method decorator)
     class extends React.Component {
 
@@ -350,7 +354,7 @@ These guidelines are meant to define how we structure our React projects at Spok
 
 ## Things to Avoid
 
-- `React.createClass`
+- <a id="avoid-react-createclass"></a>`React.createClass`
   - [Do not use](https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html).
   > Why? `React.createClass` is deprecated as of v15.5.0. It will still work, but they've extracted it out of core React for optimization.
 
