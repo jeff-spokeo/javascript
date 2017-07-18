@@ -1,36 +1,58 @@
-# Spokeo React/JSX Style Guide
+# Spokeo React/JSX/TSX Guidelines
 
-*A mostly reasonable approach to React and JSX*
+*A mostly reasonable approach to React and JSX/TSX*
+
+These guidelines are meant to define how we structure our React projects at Spokeo, as well as identify best practices, patterns, and anti-patterns.
+
 
 ## Table of Contents
 
-  1. [Basic Rules](#basic-rules)
-  1. [Class vs `React.createClass` vs stateless](#class-vs-reactcreateclass-vs-stateless)
+  1. [Directory Structure/Naming Conventions](#directory-structure-naming-conventions)
+  1. [Class vs Stateless vs `React.createClass`](#class-vs-reactcreateclass-vs-stateless)
   1. [Mixins](#mixins)
   1. [Naming](#naming)
-  1. [Declaration](#declaration)
-  1. [Alignment](#alignment)
-  1. [Quotes](#quotes)
-  1. [Spacing](#spacing)
-  1. [Props](#props)
-  1. [Refs](#refs)
-  1. [Parentheses](#parentheses)
-  1. [Tags](#tags)
   1. [Methods](#methods)
+  1. [Binding](#binding)
   1. [Ordering](#ordering)
   1. [`isMounted`](#ismounted)
 
-## Basic Rules
 
-  - Only include one React component per file.
-    - However, multiple [Stateless, or Pure, Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions) are allowed per file. eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless).
-  - Always use JSX syntax.
-  - Do not use `React.createElement` unless you're initializing the app from a file that is not JSX.
+## Directory Structure / Naming Conventions
 
-## Class vs `React.createClass` vs stateless
+  - **Directories**: Use snake_case (all lower case) for directories (unless it's a React component).
+    - `/some_directory`
+    > Why? to be consistent with Rails naming conventions  
+  - **Modules**: Use camelCase with a `.js` or `.ts` extension.
+    - `myProfileActions.ts`
+  - **Classes**: Use PascalCase with a `.js` or `.ts` extension.
+    - `MyProfileUI.ts`
+  - **React Components**: Use PascalCase with a `.jsx` or `.tsx`
+    - `MyProfile.tsx`
+  
+  ```
+    /<root-dir|react-app>
+        /components
+            /Component1.tsx --> contains Component1
+            /Component2
+                /SubComponent1.tsx
+                /SubComponent2.tsx
+                /actions.ts
+                /reducers.ts
+                /index.tsx  --> contains Component2 (the root)
+            /Navigation.tsx --> contains stateless navigation components
+        /helpers
+        /services
+        /shared
+        /utils
+  ```
 
-  - If you have internal state and/or refs, prefer `class extends React.Component` over `React.createClass`. eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md) [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
+## Class vs Stateless vs `React.createClass`
 
+  - Stateful (or Class) Components
+    - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component`.
+    - include only one React component per file.
+    - eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md) 
+    
     ```jsx
     // bad
     const Listing = React.createClass({
@@ -49,8 +71,12 @@
     }
     ```
 
-    And if you don't have state or refs, prefer normal functions over classes:
-
+  - [Stateless Functional (or Pure) Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions)
+    - If you don't have state or refs, prefer normal functions over classes.
+    - multiple SFC's are allowed per file. 
+      - eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless)
+    - eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
+    
     ```jsx
     // bad
     class Listing extends React.Component {
@@ -59,7 +85,7 @@
       }
     }
 
-    // good (although AirBnb says relying on function name inference is discouraged)
+    // good (NOTE: AirBnb says relying on function name inference is discouraged)
     const Listing = ({ hello }) => (
       <div>{hello}</div>
     );
@@ -69,6 +95,10 @@
       return <div>{hello}</div>;
     }
     ```
+  
+  - `React.createClass`
+    - [Do not use](https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html) 
+    > Why? `React.createClass` is deprecated as of v15.5.0. It will still work, but they've extracted it out of core React for optimization.
 
 ## Mixins
 
@@ -77,26 +107,24 @@
   > Why? Mixins introduce implicit dependencies, cause name clashes, and cause snowballing complexity. Most use cases for mixins can be accomplished in better ways via components, higher-order components, or utility modules.
 
 ## Naming
-
-  - **Extensions**: Use `.jsx` extension for React components.
-  - **Filename**: Use PascalCase for filenames. E.g., `ReservationCard.jsx`.
+  
   - **Reference Naming**: Use PascalCase for React components and camelCase for their instances. eslint: [`react/jsx-pascal-case`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-pascal-case.md)
 
     ```jsx
     // bad
-    import reservationCard from './ReservationCard';
+    import myProfile from './MyProfile';
 
     // good
-    import ReservationCard from './ReservationCard';
+    import MyProfile from './MyProfile';
 
     // bad
-    const ReservationItem = <ReservationCard />;
+    const MyProfile = <MyProfile />;
 
     // good
-    const reservationItem = <ReservationCard />;
+    const myProfile = <MyProfile />;
     ```
 
-  - **Component Naming**: Use the filename as the component name. For example, `ReservationCard.jsx` should have a reference name of `ReservationCard`. However, for root components of a directory, use `index.jsx` as the filename and use the directory name as the component name:
+  - **Component Naming**: Use the filename as the component name. For example, `Footer.tsx` should have a reference name of `Footer`. However, for root components of a directory, use `index.tsx` as the filename and use the directory name as the component name:
 
     ```jsx
     // bad
@@ -135,315 +163,7 @@
     }
     ```
 
-  - **Props Naming**: Avoid using DOM component prop names for different purposes.
 
-    > Why? People expect props like `style` and `className` to mean one specific thing. Varying this API for a subset of your app makes the code less readable and less maintainable, and may cause bugs.
-
-    ```jsx
-    // bad
-    <MyComponent style="fancy" />
-
-    // good
-    <MyComponent variant="fancy" />
-    ```
-
-## Declaration
-
-  - Do not use `displayName` for naming components. Instead, name the component by reference.
-
-    ```jsx
-    // bad
-    export default React.createClass({
-      displayName: 'ReservationCard',
-      // stuff goes here
-    });
-
-    // good
-    export default class ReservationCard extends React.Component {
-    }
-    ```
-
-## Alignment
-
-  - Follow these alignment styles for JSX syntax. eslint: [`react/jsx-closing-bracket-location`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-closing-bracket-location.md)
-
-    ```jsx
-    // bad
-    <Foo superLongParam="bar"
-         anotherSuperLongParam="baz" />
-
-    // good
-    <Foo
-      superLongParam="bar"
-      anotherSuperLongParam="baz"
-    />
-
-    // if props fit in one line then keep it on the same line
-    <Foo bar="bar" />
-
-    // children get indented normally
-    <Foo
-      superLongParam="bar"
-      anotherSuperLongParam="baz"
-    >
-      <Quux />
-    </Foo>
-    ```
-
-## Quotes
-
-  - Always use double quotes (`"`) for JSX attributes, but single quotes (`'`) for all other JS. eslint: [`jsx-quotes`](http://eslint.org/docs/rules/jsx-quotes)
-
-    > Why? Regular HTML attributes also typically use double quotes instead of single, so JSX attributes mirror this convention.
-
-    ```jsx
-    // bad
-    <Foo bar='bar' />
-
-    // good
-    <Foo bar="bar" />
-
-    // bad
-    <Foo style={{ left: "20px" }} />
-
-    // good
-    <Foo style={{ left: '20px' }} />
-    ```
-
-## Spacing
-
-  - Always include a single space in your self-closing tag. eslint: [`no-multi-spaces`](http://eslint.org/docs/rules/no-multi-spaces), [`react/jsx-tag-spacing`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-tag-spacing.md)
-
-    ```jsx
-    // bad
-    <Foo/>
-
-    // very bad
-    <Foo                 />
-
-    // bad
-    <Foo
-     />
-
-    // good
-    <Foo />
-    ```
-
-  - Do not pad JSX curly braces with spaces. eslint: [`react/jsx-curly-spacing`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-curly-spacing.md)
-
-    ```jsx
-    // bad
-    <Foo bar={ baz } />
-
-    // good
-    <Foo bar={baz} />
-    ```
-
-## Props
-
-  - Always use camelCase for prop names.
-
-    ```jsx
-    // bad
-    <Foo
-      UserName="hello"
-      phone_number={12345678}
-    />
-
-    // good
-    <Foo
-      userName="hello"
-      phoneNumber={12345678}
-    />
-    ```
-
-  - Omit the value of the prop when it is explicitly `true`. eslint: [`react/jsx-boolean-value`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-boolean-value.md)
-
-    ```jsx
-    // bad
-    <Foo
-      hidden={true}
-    />
-
-    // good
-    <Foo
-      hidden
-    />
-    ```
-
-  - Always include an `alt` prop on `<img>` tags. If the image is presentational, `alt` can be an empty string or the `<img>` must have `role="presentation"`. eslint: [`jsx-a11y/alt-text`](https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/alt-text.md)
-
-    ```jsx
-    // bad
-    <img src="hello.jpg" />
-
-    // good
-    <img src="hello.jpg" alt="Me waving hello" />
-
-    // good
-    <img src="hello.jpg" alt="" />
-
-    // good
-    <img src="hello.jpg" role="presentation" />
-    ```
-
-  - Do not use words like "image", "photo", or "picture" in `<img>` `alt` props. eslint: [`jsx-a11y/img-redundant-alt`](https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/img-redundant-alt.md)
-
-    > Why? Screenreaders already announce `img` elements as images, so there is no need to include this information in the alt text.
-
-    ```jsx
-    // bad
-    <img src="hello.jpg" alt="Picture of me waving hello" />
-
-    // good
-    <img src="hello.jpg" alt="Me waving hello" />
-    ```
-
-  - Use only valid, non-abstract [ARIA roles](https://www.w3.org/TR/wai-aria/roles#role_definitions). eslint: [`jsx-a11y/aria-role`](https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/aria-role.md)
-
-    ```jsx
-    // bad - not an ARIA role
-    <div role="datepicker" />
-
-    // bad - abstract ARIA role
-    <div role="range" />
-
-    // good
-    <div role="button" />
-    ```
-
-  - Do not use `accessKey` on elements. eslint: [`jsx-a11y/no-access-key`](https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/no-access-key.md)
-
-  > Why? Inconsistencies between keyboard shortcuts and keyboard commands used by people using screenreaders and keyboards complicate accessibility.
-
-  ```jsx
-  // bad
-  <div accessKey="h" />
-
-  // good
-  <div />
-  ```
-
-  - Avoid using an array index as `key` prop, prefer a unique ID. ([why?](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318))
-
-  ```jsx
-  // bad
-  {todos.map((todo, index) =>
-    <Todo
-      {...todo}
-      key={index}
-    />
-  )}
-
-  // good
-  {todos.map(todo => (
-    <Todo
-      {...todo}
-      key={todo.id}
-    />
-  ))}
-  ```
-
-  - Always define explicit defaultProps for all non-required props.
-
-  > Why? propTypes are a form of documentation, and providing defaultProps means the reader of your code doesn’t have to assume as much. In addition, it can mean that your code can omit certain type checks.
-
-  ```jsx
-  // bad
-  function SFC({ foo, bar, children }) {
-    return <div>{foo}{bar}{children}</div>;
-  }
-  SFC.propTypes = {
-    foo: PropTypes.number.isRequired,
-    bar: PropTypes.string,
-    children: PropTypes.node,
-  };
-
-  // good
-  function SFC({ foo, bar, children }) {
-    return <div>{foo}{bar}{children}</div>;
-  }
-  SFC.propTypes = {
-    foo: PropTypes.number.isRequired,
-    bar: PropTypes.string,
-    children: PropTypes.node,
-  };
-  SFC.defaultProps = {
-    bar: '',
-    children: null,
-  };
-  ```
-
-## Refs
-
-  - Always use ref callbacks. eslint: [`react/no-string-refs`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-string-refs.md)
-
-    ```jsx
-    // bad
-    <Foo
-      ref="myRef"
-    />
-
-    // good
-    <Foo
-      ref={(ref) => { this.myRef = ref; }}
-    />
-    ```
-
-## Parentheses
-
-  - Wrap JSX tags in parentheses when they span more than one line. eslint: [`react/jsx-wrap-multilines`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-wrap-multilines.md)
-
-    ```jsx
-    // bad
-    render() {
-      return <MyComponent className="long body" foo="bar">
-               <MyChild />
-             </MyComponent>;
-    }
-
-    // good
-    render() {
-      return (
-        <MyComponent className="long body" foo="bar">
-          <MyChild />
-        </MyComponent>
-      );
-    }
-
-    // good, when single line
-    render() {
-      const body = <div>hello</div>;
-      return <MyComponent>{body}</MyComponent>;
-    }
-    ```
-
-## Tags
-
-  - Always self-close tags that have no children. eslint: [`react/self-closing-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/self-closing-comp.md)
-
-    ```jsx
-    // bad
-    <Foo className="stuff"></Foo>
-
-    // good
-    <Foo className="stuff" />
-    ```
-
-  - If your component has multi-line properties, close its tag on a new line. eslint: [`react/jsx-closing-bracket-location`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-closing-bracket-location.md)
-
-    ```jsx
-    // bad
-    <Foo
-      bar="bar"
-      baz="baz" />
-
-    // good
-    <Foo
-      bar="bar"
-      baz="baz"
-    />
-    ```
 
 ## Methods
 
@@ -464,7 +184,10 @@
     }
     ```
 
-  - Avoid binding event handlers within the render method. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
+## Binding
+
+  - Avoid binding event handlers within the render method.  
+    - eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
 
     > Why? A bind call in the render path creates a brand new function on every single render.
 
@@ -479,7 +202,13 @@
         return <div onClick={this.onClickDiv.bind(this)} />;
       }
     }
+    ```
 
+  - Avoid using the lodash `BindAll()` decorator
+
+    > Why? After some trial and error, we've discovered that it is not compatible with preact.
+
+    ```jsx
     // bad (lodash class decorator)
     @BindAll() // does NOT work with preact
     class extends React.Component {
@@ -491,7 +220,10 @@
         return <div onClick={this.onClickDiv.bind(this)} />;
       }
     }
-
+    ```
+  
+  - Bind using one of the following methods:
+    ```jsx
     // good (class arrow functions)
     class extends React.Component {
       onClickDiv = () => {
@@ -534,42 +266,6 @@
     }
     ```
 
-  - Do not use underscore prefix for internal methods of a React component.
-    > Why? Underscore prefixes are sometimes used as a convention in other languages to denote privacy. But, unlike those languages, there is no native support for privacy in JavaScript, everything is public. Regardless of your intentions, adding underscore prefixes to your properties does not actually make them private, and any property (underscore-prefixed or not) should be treated as being public. See issues [#1024](https://github.com/airbnb/javascript/issues/1024), and [#490](https://github.com/airbnb/javascript/issues/490) for a more in-depth discussion.
-
-    ```jsx
-    // bad
-    React.createClass({
-      _onClickSubmit() {
-        // do stuff
-      },
-
-      // other stuff
-    });
-
-    // good
-    class extends React.Component {
-      onClickSubmit() {
-        // do stuff
-      }
-
-      // other stuff
-    }
-    ```
-
-  - Be sure to return a value in your `render` methods. eslint: [`react/require-render-return`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/require-render-return.md)
-
-    ```jsx
-    // bad
-    render() {
-      (<div />);
-    }
-
-    // good
-    render() {
-      return (<div />);
-    }
-    ```
 
 ## Ordering
 
@@ -651,30 +347,6 @@
 
     export default Link;
     ```
-
-  - Ordering for `React.createClass`: eslint: [`react/sort-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
-
-  1. `displayName`
-  1. `propTypes`
-  1. `contextTypes`
-  1. `childContextTypes`
-  1. `mixins`
-  1. `statics`
-  1. `defaultProps`
-  1. `getDefaultProps`
-  1. `getInitialState`
-  1. `getChildContext`
-  1. `componentWillMount`
-  1. `componentDidMount`
-  1. `componentWillReceiveProps`
-  1. `shouldComponentUpdate`
-  1. `componentWillUpdate`
-  1. `componentDidUpdate`
-  1. `componentWillUnmount`
-  1. *clickHandlers or eventHandlers* like `onClickSubmit()` or `onChangeDescription()`
-  1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
-  1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
-  1. `render`
 
 ## `isMounted`
 
