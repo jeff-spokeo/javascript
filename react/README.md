@@ -1,36 +1,35 @@
-# Spokeo React/JSX/TSX Guidelines
+# Spokeo React Guidelines
 
-*A mostly reasonable approach to React and JSX/TSX*
+*A mostly reasonable approach to React*
 
-These guidelines are meant to define how we structure our React projects at Spokeo, as well as identify best practices, patterns, and anti-patterns.
+These guidelines are meant to define how we structure our React projects at Spokeo, as well as identify best practices, recommended patterns, and anti-patterns.
 
 
 ## Table of Contents
 
   1. [Directory Structure/Naming Conventions](#directory-structure-naming-conventions)
-  1. [Class vs Stateless vs `React.createClass`](#class-vs-reactcreateclass-vs-stateless)
-  1. [Mixins](#mixins)
+  1. [Class vs Stateless Components](#class-vs-stateless-components)
+  1. [`React.createClass`](#reactcreateclass)
   1. [Naming](#naming)
   1. [Methods](#methods)
   1. [Binding](#binding)
   1. [Ordering](#ordering)
-  1. [`isMounted`](#ismounted)
+  1. [Things to Avoid](#things-to-avoid)
 
 
 ## Directory Structure / Naming Conventions
 
-  - **Directories**: Use snake_case (all lower case) for directories (unless it's a React component).
-    - `/some_directory`
+  - **Directories**: Use snake_case (all lower case) for directories, unless it's a React component (see below).
     > Why? to be consistent with Rails naming conventions  
   - **Modules**: Use camelCase with a `.js` or `.ts` extension.
-    - `myProfileActions.ts`
   - **Classes**: Use PascalCase with a `.js` or `.ts` extension.
-    - `MyProfileUI.ts`
-  - **React Components**: Use PascalCase with a `.jsx` or `.tsx`
-    - `MyProfile.tsx`
+  - **Components**: 
+    - place all React components under a `/components` directory
+    - **Single File**: Use PascalCase with a `.jsx` or `.tsx`
+    - **Directory**: Use PascalCase on the directory name with an `index.jsx` or `index.tsx` file.
   
   ```
-    /<root-dir|react-app>
+    /<root-dir | react-app>
         /components
             /Component1.tsx --> contains Component1
             /Component2
@@ -39,14 +38,19 @@ These guidelines are meant to define how we structure our React projects at Spok
                 /actions.ts
                 /reducers.ts
                 /index.tsx  --> contains Component2 (the root)
-            /Navigation.tsx --> contains stateless navigation components
+            /Navigation.tsx --> contains one or more stateless navigation components
         /helpers
+            /device_helper.ts
+        /index.tsx --> entry point if it's a react app
         /services
+            /api_client.ts
         /shared
+            /... --> ??? is this still useful
         /utils
+            /some_util.ts --> what's the different between a helper and a util?
   ```
 
-## Class vs Stateless vs `React.createClass`
+## Class vs Stateless Components
 
   - Stateful (or Class) Components
     - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component`.
@@ -94,17 +98,13 @@ These guidelines are meant to define how we structure our React projects at Spok
     function Listing({ hello }) {
       return <div>{hello}</div>;
     }
+
+    // ok (it works, but is less clear what props the component is expecting)
+    const Listing = (props) => (
+      <div>{props.hello}</div>
+    );
+
     ```
-  
-  - `React.createClass`
-    - [Do not use](https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html) 
-    > Why? `React.createClass` is deprecated as of v15.5.0. It will still work, but they've extracted it out of core React for optimization.
-
-## Mixins
-
-  - [Do not use mixins](https://facebook.github.io/react/blog/2016/07/13/mixins-considered-harmful.html).
-
-  > Why? Mixins introduce implicit dependencies, cause name clashes, and cause snowballing complexity. Most use cases for mixins can be accomplished in better ways via components, higher-order components, or utility modules.
 
 ## Naming
   
@@ -348,7 +348,19 @@ These guidelines are meant to define how we structure our React projects at Spok
     export default Link;
     ```
 
-## `isMounted`
+## Things to Avoid
+
+- `React.createClass`
+  - [Do not use](https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html).
+  > Why? `React.createClass` is deprecated as of v15.5.0. It will still work, but they've extracted it out of core React for optimization.
+
+- Mixins
+
+  - [Do not use mixins](https://facebook.github.io/react/blog/2016/07/13/mixins-considered-harmful.html).
+
+  > Why? Mixins introduce implicit dependencies, cause name clashes, and cause snowballing complexity. Most use cases for mixins can be accomplished in better ways via components, higher-order components, or utility modules.
+
+- `isMounted`
 
   - Do not use `isMounted`. eslint: [`react/no-is-mounted`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-is-mounted.md)
 
