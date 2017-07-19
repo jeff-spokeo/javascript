@@ -10,44 +10,105 @@ These guidelines are meant to define how we structure our React projects at Spok
   1. [Directory Structure/Naming Conventions](#directory-structure-naming-conventions)
   1. [Class vs Stateless Components](#class-vs-stateless-components)
   1. [Naming](#naming)
-  1. [Methods](#methods)
   1. [Binding](#binding)
+  1. [Methods](#methods)
+  1. [Props](#props)
   1. [Ordering](#ordering)
   1. [Things to Avoid](#things-to-avoid)
 
 
 ## Directory Structure / Naming Conventions
 
+```
+  /<root-dir | react-app>
+      /components
+          /Component1.tsx --> contains Component1
+          /Component2
+              /SubComponent1.tsx
+              /SubComponent2.tsx
+              /actions.ts
+              /reducers.ts
+              /index.tsx  --> contains Component2 (the root)
+          /Navigation.tsx --> contains one or more stateless navigation components
+      /helpers
+          /device_helper.ts
+      /index.tsx --> entry point if it's a react app
+      /services
+          /api_client.ts
+      /shared
+          /... --> ??? is this still useful
+      /utils
+          /some_util.ts --> what's the different between a helper and a util?
+```
   - **Directories**: Use snake_case (all lower case) for directories, unless it's a React component (see below).
     > Why? to be consistent with Rails naming conventions  
-  - **Modules**: Use camelCase with a `.js` or `.ts` extension.
+  - **Modules**: Use snake_case with a `.js` or `.ts` extension.
+    > Why? we've established this standard elsewhere in the code 
+
   - **Classes**: Use PascalCase with a `.js` or `.ts` extension.
-  - **Components**: 
-    - place all React components under a `/components` directory
-    - **Single File**: Use PascalCase with a `.jsx` or `.tsx`
+    ```js
+    // Foo.js
+    export default class Foo {
+      ...
+    }
+    ```
+
+  - **Components**: place all React components under a `/components` directory
+    - **Single File/Single Component**: Use PascalCase with a `.jsx` or `.tsx` extension.
+      - should contain a default export for the main component
+      ```jsx
+      // Header.tsx
+      export default class Header extends React.Component {
+        constructor(props) {
+          super(props)
+          this.state = {
+            title: props.title
+          }
+        }
+        render() {
+          return  (
+            <h1>{this.state.title}</h1>
+          )
+        }
+      } 
+      ```
+
+    - **Single File/Multiple Components**: Use PascalCase with a `.jsx` or `.tsx` extension.
+      - should NOT contain a default export
+      ```jsx
+      // Navigation.tsx
+
+      const NavItem = ({ href, text }) => (
+        <a href={ href }>{ text }</a>
+      )
+
+      const NavList = ({ children }) => (
+        <ul>
+          { children }
+        </ul>
+      )
+
+      const NavListItem = ({ href, text }) => (
+        <li>
+          <NavItem href text />
+        </li>
+      )
+
+      export {
+        NavItem,
+        NavList,
+        NavListItem
+      }
+      ```
+
     - **Directory**: Use PascalCase on the directory name with an `index.jsx` or `index.tsx` file.
-  
-  ```
-    /<root-dir | react-app>
-        /components
-            /Component1.tsx --> contains Component1
-            /Component2
-                /SubComponent1.tsx
-                /SubComponent2.tsx
-                /actions.ts
-                /reducers.ts
-                /index.tsx  --> contains Component2 (the root)
-            /Navigation.tsx --> contains one or more stateless navigation components
-        /helpers
-            /device_helper.ts
-        /index.tsx --> entry point if it's a react app
-        /services
-            /api_client.ts
-        /shared
-            /... --> ??? is this still useful
-        /utils
-            /some_util.ts --> what's the different between a helper and a util?
-  ```
+      ```
+      /UserProfile
+          /Avatar.tsx
+          /DetailedInfo.tsx
+          /index.tsx --> default export the UserProfile component
+      ```
+
 
 ## Class vs Stateless Components
 
@@ -87,22 +148,23 @@ These guidelines are meant to define how we structure our React projects at Spok
         return <div>{this.props.hello}</div>;
       }
     }
+    ```
 
-    // good (NOTE: AirBnb says relying on function name inference is discouraged)
-    const Listing = ({ hello }) => (
-      <div>{hello}</div>
-    );
-
+    ```jsx
     // good
     function Listing({ hello }) {
       return <div>{hello}</div>;
     }
 
+    // good (NOTE: AirBnb discourages function name inference, but we like it)
+    const Listing = ({ hello }) => (
+      <div>{hello}</div>
+    );
+
     // ok (it works, but is less clear what props the component is expecting)
     const Listing = (props) => (
       <div>{props.hello}</div>
     );
-
     ```
 
 ## Naming
@@ -159,27 +221,6 @@ These guidelines are meant to define how we structure our React projects at Spok
 
       WithFoo.displayName = `withFoo(${wrappedComponentName})`;
       return WithFoo;
-    }
-    ```
-
-
-
-## Methods
-
-  - Use arrow functions to close over local variables.
-
-    ```jsx
-    function ItemList(props) {
-      return (
-        <ul>
-          {props.items.map((item, index) => (
-            <Item
-              key={item.key}
-              onClick={() => doSomethingWith(item.name, index)}
-            />
-          ))}
-        </ul>
-      );
     }
     ```
 
@@ -271,26 +312,26 @@ These guidelines are meant to define how we structure our React projects at Spok
     ```
 
 
-## Ordering
+## Methods
 
-  - Ordering for `class extends React.Component`:
+  - Use arrow functions to close over local variables.
 
-  1. optional `static` methods
-  1. `constructor`
-  1. `getChildContext`
-  1. `componentWillMount`
-  1. `componentDidMount`
-  1. `componentWillReceiveProps`
-  1. `shouldComponentUpdate`
-  1. `componentWillUpdate`
-  1. `componentDidUpdate`
-  1. `componentWillUnmount`
-  1. *clickHandlers or eventHandlers* like `onClickSubmit()` or `onChangeDescription()`
-  1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
-  1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
-  1. `render`
-  1. `redux connect (if applicable)`
+    ```jsx
+    function ItemList(props) {
+      return (
+        <ul>
+          {props.items.map((item, index) => (
+            <Item
+              key={item.key}
+              onClick={() => doSomethingWith(item.name, index)}
+            />
+          ))}
+        </ul>
+      );
+    }
+    ```
 
+## Props
   - How to define `propTypes`, `defaultProps`, `contextTypes`, etc... via TypeScript
 
     ```jsx
@@ -351,6 +392,27 @@ These guidelines are meant to define how we structure our React projects at Spok
 
     export default Link;
     ```
+
+
+## Ordering
+
+Ordering for `class extends React.Component`:
+
+  1. optional `static` methods
+  1. `constructor`
+  1. `getChildContext`
+  1. `componentWillMount`
+  1. `componentDidMount`
+  1. `componentWillReceiveProps`
+  1. `shouldComponentUpdate`
+  1. `componentWillUpdate`
+  1. `componentDidUpdate`
+  1. `componentWillUnmount`
+  1. *clickHandlers or eventHandlers* like `onClickSubmit()` or `onChangeDescription()`
+  1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
+  1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
+  1. `render`
+  1. `redux connect (if applicable)`
 
 ## Things to Avoid
 
