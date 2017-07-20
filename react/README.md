@@ -12,8 +12,9 @@ These guidelines are meant to define how we structure our React projects at Spok
   1. [Naming](#naming)
   1. [Binding](#binding)
   1. [Methods](#methods)
-  1. [Props](#props)
+  1. [Props/State/Defaults](#propsstatedefaults)
   1. [Ordering](#ordering)
+  1. [Redux](#redux)
   1. [Things to Avoid](#things-to-avoid)
 
 
@@ -30,35 +31,38 @@ These guidelines are meant to define how we structure our React projects at Spok
               /reducers.ts
               /index.tsx  --> contains Component2 (the root)
           /Navigation.tsx --> contains one or more stateless navigation components
-      /helpers
-          /device_helper.ts
       /index.tsx --> entry point if it's a react app
       /services
           /api_client.ts
       /shared
-          /... --> ??? is this still useful
-      /utils
-          /some_util.ts --> what's the different between a helper and a util?
+          /device_helper.ts
+          /string_utils.ts --> what's the different between a helper and a util?
 ```
   - **Directories**: Use snake_case (all lower case) for directories, unless it's a React component (see below).
-    > Why? to be consistent with Rails naming conventions  
-  - **Modules**: Use snake_case with a `.js` or `.ts` extension.
+    > Why? to be consistent with Rails naming conventions
+
+  - **Modules**: Use snake_case with a `.ts` extension.
     > Why? we've established this standard elsewhere in the code 
 
-  - **Classes**: Use PascalCase with a `.js` or `.ts` extension.
+  - **Classes**: Use PascalCase with a `.ts` extension.
     ```js
-    // Foo.js
+    // Foo.ts
     export default class Foo {
       ...
     }
     ```
 
   - **Components**: place all React components under a `/components` directory
-    - **Single File/Single Component**: Use PascalCase with a `.jsx` or `.tsx` extension.
+    - **Single File/Single Component**: Use PascalCase with a `.tsx` extension.
       - should contain a default export for the main component
       ```jsx
       // Header.tsx
-      export default class Header extends React.Component {
+
+      interface IHeader = {
+        title: string
+      }
+
+      export default class Header extends React.Component<IHeader, IHeader> {
         constructor(props) {
           super(props)
           this.state = {
@@ -73,7 +77,7 @@ These guidelines are meant to define how we structure our React projects at Spok
       } 
       ```
 
-    - **Single File/Multiple Components**: Use PascalCase with a `.jsx` or `.tsx` extension.
+    - **Single File/Multiple Components**: Use PascalCase with a `.tsx` extension.
       - should NOT contain a default export
       ```jsx
       // Navigation.tsx
@@ -101,18 +105,20 @@ These guidelines are meant to define how we structure our React projects at Spok
       }
       ```
 
-    - **Directory**: Use PascalCase on the directory name with an `index.jsx` or `index.tsx` file.
+    - **Directory**: Use PascalCase on the directory name with an `index.tsx` file.
       ```
       /UserProfile
           /Avatar.tsx
           /DetailedInfo.tsx
-          /index.tsx --> default export the UserProfile component
+          /actions.ts
+          /reducers.ts
+          /index.tsx --> export default the UserProfile component
       ```
 
 
 ## Class vs Stateless Components
 
-  - Stateful (or Class) Components
+  - Class (or Stateful) Components
     - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component` over [`React.createClass`](#avoid-react-createclass).
     - include only one React component per file.
     - eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md) 
@@ -127,7 +133,7 @@ These guidelines are meant to define how we structure our React projects at Spok
     });
 
     // good
-    class Listing extends React.Component {
+    class Listing extends React.Component<any, any> {
       // ...
       render() {
         return <div>{this.state.hello}</div>;
@@ -143,7 +149,7 @@ These guidelines are meant to define how we structure our React projects at Spok
     
     ```jsx
     // bad
-    class Listing extends React.Component {
+    class Listing extends React.Component<any, any> {
       render() {
         return <div>{this.props.hello}</div>;
       }
@@ -171,13 +177,19 @@ These guidelines are meant to define how we structure our React projects at Spok
   
   - **Reference Naming**: Use PascalCase for React components and camelCase for their instances. eslint: [`react/jsx-pascal-case`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-pascal-case.md)
 
+    - References (PascalCase)
+
     ```jsx
     // bad
     import myProfile from './MyProfile';
 
     // good
     import MyProfile from './MyProfile';
+    ```
 
+    - Instances (camelCase)
+    
+    ```jsx
     // bad
     const MyProfile = <MyProfile />;
 
@@ -243,24 +255,39 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-  - AVOID: lodash `BindAll()` class decorator
+  - AVOID: lodash decorators (`BindAll()`, `Bind()`)
 
-    > Why? It is not compatible with preact.
+    > Why? We want to avoid importing the lodash library in order to keep our file size down.  There are other suitable alternatives defined below.
 
     ```jsx
     // bad (lodash class decorator)
-    @BindAll() // does NOT work with preact
-    class extends React.Component {
+    @BindAll() // does NOT work with preact!
+    class extends React.Component<any, any> {
       onClickDiv() {
         // do stuff
       }
 
       render() {
-        return <div onClick={this.onClickDiv.bind(this)} />;
+        return <div onClick={this.onClickDiv} />;
       }
     }
     ```
-  
+
+    ```jsx
+    // bad (lodash method decorator)
+    class extends React.Component<any, any> {
+
+      @Bind()
+      onClickDiv() {
+        // do stuff
+      }
+
+      render() {
+        return <div onClick={this.onClickDiv} />;
+      }
+    }
+    ```
+
   - DO: Bind via class arrow functions
     ```jsx
     // good (class arrow functions)
@@ -295,22 +322,6 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-  - DO: Bind via lodash Bind() decorator
-    ```jsx
-    // good (lodash method decorator)
-    class extends React.Component {
-
-      @Bind()
-      onClickDiv() {
-        // do stuff
-      }
-
-      render() {
-        return <div onClick={this.onClickDiv} />;
-      }
-    }
-    ```
-
 
 ## Methods
 
@@ -331,66 +342,57 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-## Props
-  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc... via TypeScript
+## React and TypeScript `interfaces`
+
+Since we're using TypeScript, we're utilzing TypeScript's `interface` and `generics` API rather than React's `propTypes` and `defaultProps` for defining the component props interface.
+
+  - Strongly-typed Class Component
 
     ```jsx
-    import React from 'react';
-
-    interface IProps = {
-      id: number,
-      url: string,
-      text?: string = 'Hello World',
+    interface IProps {
+      id: number;
+      url: string;
+      text?: string;
     };
 
-    interface IState = {
-      foo: string,
-      bar?: string
+    interface IState {
+      foo: string;
+      bar?: string;
     }
 
-    class Link extends React.Component<IProps, IState> {
-      static methodsAreOk() {
-        return true;
+    class Box extends React.Component<IProps, IState> {
+
+      static defaultProps = {
+        text: 'Hello World!'
+      }
+
+      constructor(props) {
+        super(props)
+
+        this.state = {
+          foo: 'this is foo',
+          bar: 'this is bar'
+        }
       }
 
       render() {
-        return <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>;
+        return (
+          <div>
+            <label>{ this.state.foo }</label>
+            <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>
+            <span>{ this.state.bar }</span>
+          </div>
+        )
       }
     }
-
-    export default Link;
     ```
-    
-  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc... via REACT
+
+  - Strongly-typed Stateless Functional Component
 
     ```jsx
-    import React from 'react';
-    import PropTypes from 'prop-types';
-
-    const propTypes = {
-      id: PropTypes.number.isRequired,
-      url: PropTypes.string.isRequired,
-      text: PropTypes.string,
-    };
-
-    const defaultProps = {
-      text: 'Hello World',
-    };
-
-    class Link extends React.Component {
-      static methodsAreOk() {
-        return true;
-      }
-
-      render() {
-        return <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>;
-      }
-    }
-
-    Link.propTypes = propTypes;
-    Link.defaultProps = defaultProps;
-
-    export default Link;
+    const Link = ({ id: number, url: string, text?: string }) => (
+      <a href={url} data-id={id}>{text}</a>
+    )
     ```
 
 
@@ -410,9 +412,13 @@ Ordering for `class extends React.Component`:
   1. `componentWillUnmount`
   1. *clickHandlers or eventHandlers* like `onClickSubmit()` or `onChangeDescription()`
   1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
+  1. *optional private methods* like `doSomething()` or `doSomethingElse()`
   1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
   1. `render`
-  1. `redux connect (if applicable)`
+
+## Redux
+
+For components that use Redux... go here (TODO: create redux README)
 
 ## Things to Avoid
 
