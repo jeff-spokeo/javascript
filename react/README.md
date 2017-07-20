@@ -12,7 +12,7 @@ These guidelines are meant to define how we structure our React projects at Spok
   1. [Naming](#naming)
   1. [Binding](#binding)
   1. [Methods](#methods)
-  1. [React and TypeScript `interfaces`](#react-and-typescript-interfaces)
+  1. [TypeScript vs PropTypes](#typescript-vs-proptypes)
   1. [Ordering](#ordering)
   1. [Redux](#redux)
   1. [Things to Avoid](#things-to-avoid)
