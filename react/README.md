@@ -12,7 +12,7 @@ These guidelines are meant to define how we structure our React projects at Spok
   1. [Naming](#naming)
   1. [Binding](#binding)
   1. [Methods](#methods)
-  1. [Props/State/Defaults](#propsstatedefaults)
+  1. [React and TypeScript `interfaces`](#react-and-typescript-interfaces)
   1. [Ordering](#ordering)
   1. [Redux](#redux)
   1. [Things to Avoid](#things-to-avoid)
@@ -342,9 +342,11 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-## React and TypeScript `interfaces`
+## TypeScript vs PropTypes
 
-Since we're using TypeScript, we're utilzing TypeScript's `interface` and `generics` API rather than React's `propTypes` and `defaultProps` for defining the component props interface.
+Prefer TypeScript's `interface` and `generics` API over React's `propTypes` and `defaultProps` for defining the component props interface.
+
+  > Why? TypeScript provides robust real-type type checking and intellisense capabilities.  Also, PropTypes have been extracted out of react core as of v15.5
 
   - Strongly-typed Class Component
 
@@ -379,7 +381,7 @@ Since we're using TypeScript, we're utilzing TypeScript's `interface` and `gener
         return (
           <div>
             <label>{ this.state.foo }</label>
-            <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>
+            <a href={ this.props.url } data-id={ this.props.id }>{ this.props.text }</a>
             <span>{ this.state.bar }</span>
           </div>
         )
@@ -390,11 +392,29 @@ Since we're using TypeScript, we're utilzing TypeScript's `interface` and `gener
   - Strongly-typed Stateless Functional Component
 
     ```jsx
+    // good (destructure the props argument and define the types directly on the argument list)
     const Link = ({ id: number, url: string, text?: string }) => (
-      <a href={url} data-id={id}>{text}</a>
+      <a href={ url } data-id={ id }>{text}</a>
     )
     ```
 
+    ```jsx
+    // good (define an interface. suitable when there are many props.)
+    interface ILink = {
+      id: number;
+      url: string;
+      text?: string;
+      foo: string;
+      bar: string;
+    }
+    const Link: React.SFC<ILink> = (props) => (
+      <div>
+        <label>{ props.foo }</label>
+        <a href={ props.url } data-id={ props.id }>{ props.text }</a>
+        <span>{ props.bar }</span>
+      </div>
+    )
+    ```
 
 ## Ordering
 
@@ -439,5 +459,7 @@ For components that use Redux... go here (TODO: create redux README)
   > Why? [`isMounted` is an anti-pattern][anti-pattern], is not available when using ES6 classes, and is on its way to being officially deprecated.
 
   [anti-pattern]: https://facebook.github.io/react/blog/2015/12/16/ismounted-antipattern.html
+
+
 
 **[⬆ back to top](#table-of-contents)**
