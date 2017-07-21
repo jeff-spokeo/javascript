@@ -1,14 +1,22 @@
 # Spokeo React Guidelines
 
-*A mostly reasonable approach to React*
+*A mostly reasonable approach to React Development at Spokeo, maintained by the Spokeo JavaScript Guild.*
 
-These guidelines are meant to define how we structure our React projects at Spokeo, as well as identify best practices, recommended patterns, and anti-patterns.
+**Philosophy**
+
+There are always several ways solve common problems, some better than others depending on the situation.  Developers also have different preferences and sometimes conflicting opinions. These guidelines aim to provide a common toolset for developers to use when developing React apps here as Spokeo.  By following these guidelines, we hope to produce quality code that is easy to build and maintain by all developers.
+
+**Goals**
+- Define reasonable conventions for naming and project structure
+- Identify best practices and recommended patterns for common React use cases
+- Identify anti-patterns that you should avoid and the reasons why
+- Be a reference for developers and reviewers when reviewing code
 
 
 ## Table of Contents
 
   1. [Directory Structure/Naming Conventions](#directory-structure-naming-conventions)
-  1. [Class vs Stateless Components](#class-vs-stateless-components)
+  1. [Class vs Functional Components](#class-vs-functional-components)
   1. [Naming](#naming)
   1. [Binding](#binding)
   1. [Methods](#methods)
@@ -20,16 +28,21 @@ These guidelines are meant to define how we structure our React projects at Spok
 
 ## Directory Structure / Naming Conventions
 
+Here's an example of what a React app might look like:
+
 ```
   /<root-dir | react-app>
       /components
           /Component1.tsx --> contains Component1
           /Component2
+              /Component2.tsx
               /SubComponent1.tsx
-              /SubComponent2.tsx
+              /SubComponent2
+                  /index.tsx
+                  /whatever.ts
               /actions.ts
               /reducers.ts
-              /index.tsx  --> contains Component2 (the root)
+              /index.tsx  --> exports Component2 as default
           /Navigation.tsx --> contains one or more stateless navigation components
       /index.tsx --> entry point if it's a react app
       /services
@@ -116,7 +129,7 @@ These guidelines are meant to define how we structure our React projects at Spok
       ```
 
 
-## Class vs Stateless Components
+## Class vs Functional Components
 
   - Class (or Stateful) Components
     - If you have internal state and/or refs, or you need to hook into component lifecyle methods, prefer `class extends React.Component` over [`React.createClass`](#avoid-react-createclass).
@@ -141,7 +154,7 @@ These guidelines are meant to define how we structure our React projects at Spok
     }
     ```
 
-  - [Stateless Functional (or Pure) Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions)
+  - [Functional (or Stateless or Pure) Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions)
     - If you don't have state or refs, prefer normal functions over classes.
     - multiple SFC's are allowed per file. 
       - eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless)
