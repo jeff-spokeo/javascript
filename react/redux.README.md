@@ -51,7 +51,7 @@ Within the component directory, you will typically have the following files:
     // components/SomeOtherComponent.tsx
 
     // bad - do NOT reference any files under MyComponent directly
-    import { ILocation, IPerson } from '../MyComponent/models.ts'
+    import { ILocation, IPerson } from '../MyComponent/models'
 
     // good - imports interfaces from MyComponent's public API
     import MyComponent, { ILocation, IPerson } from '../MyComponent'
