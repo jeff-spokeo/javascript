@@ -4,7 +4,7 @@
 
 **Philosophy**
 
-There are always several ways solve common problems, some better than others depending on the situation.  Developers also have different preferences and sometimes conflicting opinions. These guidelines aim to provide a common toolset for developers to use when developing React apps here as Spokeo.  By following these guidelines, we hope to produce quality code that is easy to build and maintain by all developers.
+There are always several ways solve common problems, some better than others depending on the situation.  These guidelines aim to provide a common toolset for developers to use when developing React apps here as Spokeo.
 
 **Goals**
 - Define reasonable conventions for naming and project structure
