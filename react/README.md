@@ -19,7 +19,6 @@ There are always several ways solve common problems, some better than others dep
   1. [Class vs Functional Components](#class-vs-functional-components)
   1. [Naming](#naming)
   1. [Binding](#binding)
-  1. [Methods](#methods)
   1. [TypeScript vs PropTypes](#typescript-vs-proptypes)
   1. [Ordering](#ordering)
   1. [Redux](#redux)
@@ -67,7 +66,10 @@ Here's an example of what a React app might look like:
 
   - **Components**: place all React components under a `/components` directory
     - **Single File/Single Component**: Use PascalCase with a `.tsx` extension.
-      - should contain a default export for the main component
+
+      - simple components can be defined in a single file.
+      - should contain a default export for the component.
+
       ```jsx
       // Header.tsx
 
@@ -88,10 +90,17 @@ Here's an example of what a React app might look like:
           )
         }
       } 
+
+      // SomeOtherComponent.tsx
+      import Header from 'Header'
+
       ```
 
     - **Single File/Multiple Components**: Use PascalCase with a `.tsx` extension.
-      - should NOT contain a default export
+
+      - does not need to contain a default export.
+      - if a default export is defined, it MUST match the filename.
+
       ```jsx
       // Navigation.tsx
 
@@ -116,9 +125,17 @@ Here's an example of what a React app might look like:
         NavList,
         NavListItem
       }
+
+      // SomeOtherComponent.tsx
+      import { NavItem, NavList, NavListItem } from 'Navigation'
+
       ```
 
     - **Directory**: Use PascalCase on the directory name with an `index.tsx` file.
+      
+      - If your component is complex and has many files associated with it, then create a component directory with an `index.tsx` file that exports the main component.
+      - the `index.tsx` file should also export any public-facing artifacts that can be shared.
+
       ```
       /UserProfile
           /Avatar.tsx
@@ -126,6 +143,11 @@ Here's an example of what a React app might look like:
           /actions.ts
           /reducers.ts
           /index.tsx --> export default the UserProfile component
+      ```
+
+      ```jsx
+      // SomeOtherComponent.tsx
+      import UserProfile from 'UserProfile'
       ```
 
 
@@ -156,12 +178,12 @@ Here's an example of what a React app might look like:
 
   - [Functional (or Stateless or Pure) Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions)
     - If you don't have state or refs, prefer normal functions over classes.
+      - eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
     - multiple SFC's are allowed per file. 
       - eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless)
-    - eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
     
     ```jsx
-    // bad
+    // bad (it's stateless. no need to extend React.Component.)
     class Listing extends React.Component<any, any> {
       render() {
         return <div>{this.props.hello}</div>;
@@ -174,12 +196,16 @@ Here's an example of what a React app might look like:
     function Listing({ hello }) {
       return <div>{hello}</div>;
     }
+    ```
 
-    // good (NOTE: AirBnb discourages function name inference, but we like it)
+    ```jsx
+    // good (NOTE: AirBnb discourages function name inference, but we're ok with it)
     const Listing = ({ hello }) => (
       <div>{hello}</div>
     );
+    ```
 
+    ```jsx
     // ok (it works, but is less clear what props the component is expecting)
     const Listing = (props) => (
       <div>{props.hello}</div>
@@ -222,6 +248,7 @@ Here's an example of what a React app might look like:
     // good
     import Footer from './Footer';
     ```
+
   - **Higher-order Component Naming**: Use a composite of the higher-order component's name and the passed-in component's name as the `displayName` on the generated component. For example, the higher-order component `withFoo()`, when passed a component `Bar` should produce a component with a `displayName` of `withFoo(Bar)`.
 
     > Why? A component's `displayName` may be used by developer tools or in error messages, and having a value that clearly expresses this relationship helps people understand what is happening.
@@ -335,31 +362,11 @@ Here's an example of what a React app might look like:
     }
     ```
 
-
-## Methods
-
-  - Use arrow functions to close over local variables.
-
-    ```jsx
-    function ItemList(props) {
-      return (
-        <ul>
-          {props.items.map((item, index) => (
-            <Item
-              key={item.key}
-              onClick={() => doSomethingWith(item.name, index)}
-            />
-          ))}
-        </ul>
-      );
-    }
-    ```
-
 ## TypeScript vs PropTypes
 
 Prefer TypeScript's `interface` and `generics` API over React's `propTypes` and `defaultProps` for defining the component props interface.
 
-  > Why? TypeScript provides robust real-type type checking and intellisense capabilities.  Also, PropTypes have been extracted out of react core as of v15.5
+  > Why? TypeScript provides robust real-time type checking and intellisense capabilities.  Also, PropTypes have been extracted out of react core as of v15.5
 
   - Strongly-typed Class Component
 
@@ -451,7 +458,7 @@ Ordering for `class extends React.Component`:
 
 ## Redux
 
-For components that use Redux... go here (TODO: create redux README)
+For components that use Redux... go [here](redux.README.md)
 
 ## Things to Avoid
 
