@@ -10,7 +10,7 @@ There are always several ways solve common problems, some better than others dep
 - Define reasonable conventions for naming and project structure
 - Identify best practices and recommended patterns for common React use cases
 - Identify anti-patterns that you should avoid and the reasons why
-- Be a reference for developers and reviewers when reviewing code
+- Be a reference for both developers and code reviewers
 
 
 ## Table of Contents
