@@ -220,7 +220,8 @@ export const fullNameSelector = (state: any) => {
       }, dispatch)
     })(FooComponent)
     ```
-
+    
+  - TODO: add example that uses re-usable interfaces (randy)
 
 ## Store
 

@@ -22,6 +22,7 @@ There are always several ways solve common problems, some better than others dep
   1. [TypeScript vs PropTypes](#typescript-vs-proptypes)
   1. [Ordering](#ordering)
   1. [Redux](#redux)
+  1. [Server Side Rendering](#server-side-rendering)
   1. [Things to Avoid](#things-to-avoid)
 
 
@@ -33,7 +34,7 @@ Here's an example of what a React app might look like:
   /<root-dir | react-app>
       /components
           /Component1.tsx --> contains Component1
-          /Component2
+          /Component2     --> directory Component
               /Component2.tsx
               /SubComponent1.tsx
               /SubComponent2
@@ -42,7 +43,11 @@ Here's an example of what a React app might look like:
               /actions.ts
               /reducers.ts
               /index.tsx  --> exports Component2 as default
-          /Navigation.tsx --> contains one or more stateless navigation components
+          /navigation.tsx --> single file for grouping
+          /layout         --> directory for grouping
+            Header.tsx
+            Footer.tsx
+            index.tsx     --> exports all layout components
       /index.tsx --> entry point if it's a react app
       /services
           /api_client.ts
@@ -65,7 +70,7 @@ Here's an example of what a React app might look like:
     ```
 
   - **Components**: place all React components under a `/components` directory
-    - **Single File/Single Component**: Use PascalCase with a `.tsx` extension.
+    - **Single File Component**: Use PascalCase with a `.tsx` extension.
 
       - simple components can be defined in a single file.
       - should contain a default export for the component.
@@ -96,13 +101,34 @@ Here's an example of what a React app might look like:
 
       ```
 
-    - **Single File/Multiple Components**: Use PascalCase with a `.tsx` extension.
+    - **Directory Component**: Use PascalCase on the directory name with an `index.tsx` file.
+      
+      - If your component is complex and has many files associated with it, then create a component directory with an `index.tsx` file that exports the main component.
+      - the `index.tsx` file should also export any public-facing artifacts that can be shared.
+
+      ```
+      /UserProfile
+          /Avatar.tsx
+          /DetailedInfo.tsx
+          /actions.ts
+          /reducers.ts
+          /index.tsx --> export default the UserProfile component
+      ```
+
+      ```jsx
+      // SomeOtherComponent.tsx
+      import UserProfile from 'UserProfile'
+      ```
+
+    - **Single File/Multiple Components**: Use snake_case with a `.tsx` extension.
 
       - does not need to contain a default export.
       - if a default export is defined, it MUST match the filename.
 
+      > <a id="components-why-snake-case"></a>Why snake_case? To signify that the file contains multiple related components rather than a single component
+
       ```jsx
-      // Navigation.tsx
+      // navigation.tsx
 
       const NavItem = ({ href, text }) => (
         <a href={ href }>{ text }</a>
@@ -126,28 +152,27 @@ Here's an example of what a React app might look like:
         NavListItem
       }
 
-      // SomeOtherComponent.tsx
-      import { NavItem, NavList, NavListItem } from 'Navigation'
+      // components/SomeOtherComponent.tsx
+      import { NavItem, NavList, NavListItem } from './navigation'
 
       ```
 
-    - **Directory**: Use PascalCase on the directory name with an `index.tsx` file.
+    - **Directory for grouping multiple Component**: Use snake_case on the directory name with an `index.tsx` file.
       
-      - If your component is complex and has many files associated with it, then create a component directory with an `index.tsx` file that exports the main component.
-      - the `index.tsx` file should also export any public-facing artifacts that can be shared.
+      - you can also define multiple related components in a directory with an `index.tsx` file that exports all the components.
+
+      > Why snake_case? [see above](#components-why-snake-case)
 
       ```
-      /UserProfile
-          /Avatar.tsx
-          /DetailedInfo.tsx
-          /actions.ts
-          /reducers.ts
-          /index.tsx --> export default the UserProfile component
+      /layout
+          /Header.tsx
+          /Footer.tsx
+          /index.tsx --> exports Header and Footer (no default export)
       ```
 
       ```jsx
-      // SomeOtherComponent.tsx
-      import UserProfile from 'UserProfile'
+      // components/SomeOtherComponent.tsx
+      import { Header, Footer } from './layout'
       ```
 
 
@@ -212,6 +237,9 @@ Here's an example of what a React app might look like:
     );
     ```
 
+    > see additional [examples with TypeScript types](#strongly-typed-sfc)
+
+
 ## Naming
   
   - **Reference Naming**: Use PascalCase for React components and camelCase for their instances. eslint: [`react/jsx-pascal-case`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-pascal-case.md)
@@ -275,6 +303,8 @@ Here's an example of what a React app might look like:
       return WithFoo;
     }
     ```
+
+    TODO: add example using typescript (sanat)
 
 ## Binding
 
@@ -409,7 +439,7 @@ Prefer TypeScript's `interface` and `generics` API over React's `propTypes` and 
     }
     ```
 
-  - Strongly-typed Stateless Functional Component
+  - <a id="strongly-typed-sfc"></a>Strongly-typed Stateless Functional Component
 
     ```jsx
     // good (destructure the props argument and define the types directly on the argument list)
@@ -459,6 +489,11 @@ Ordering for `class extends React.Component`:
 ## Redux
 
 For components that use Redux... go [here](redux.README.md)
+
+## Server Side Rendering
+
+- `window` object
+  - TODO: fill out how we handle this with an example
 
 ## Things to Avoid
 
